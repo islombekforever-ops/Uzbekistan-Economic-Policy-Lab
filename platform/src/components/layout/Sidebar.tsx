@@ -45,8 +45,9 @@ const navigation: NavItem[] = [
       },
       {
         label: "CGE Model (1-2-3)",
+        href: "/models/cge",
         icon: <Globe size={16} />,
-        badge: "Soon",
+        badge: "Live",
       },
       {
         label: "Fiscal Programming",

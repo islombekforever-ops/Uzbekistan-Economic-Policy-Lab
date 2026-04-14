@@ -44,12 +44,12 @@ const models = [
     title: "CGE Model (1-2-3)",
     subtitle: "Computable General Equilibrium",
     description:
-      "Economy-wide general equilibrium model for fiscal, trade, and structural reform simulations with household welfare analysis.",
+      "Economy-wide CGE model for trade, fiscal and exchange-rate policy simulations. Johansen linearised 1-2-3 framework calibrated to Uzbekistan 2022 SAM.",
     icon: <Globe size={24} />,
-    badge: "Soon",
-    href: null,
+    badge: "Live",
+    href: "/models/cge",
     color: "#f59e0b",
-    tags: ["CGE", "Trade", "Welfare", "Fiscal"],
+    tags: ["CGE", "Armington", "CET", "SAM"],
   },
   {
     id: "fpp",
