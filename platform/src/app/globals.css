@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0d1f3c;
+  --teal: #0d9488;
+  --bg: #f0f4f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg);
+  color: #1e293b;
+  margin: 0;
+  padding: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+/* Recharts tooltip */
+.recharts-tooltip-wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+}
+
+/* Animated number */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-count { animation: countUp 0.6s ease-out; }
+
+/* Sidebar */
+.sidebar-link {
+  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium
+         text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer;
+}
+.sidebar-link.active {
+  @apply text-white bg-teal-600;
+}
+
+/* Cards */
+.metric-card {
+  @apply bg-white rounded-xl p-5 shadow-sm border border-slate-100
+         hover:shadow-md transition-shadow duration-200;
+}
+
+/* Badge */
+.badge-available {
+  @apply text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-700;
+}
+.badge-soon {
+  @apply text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700;
+}
+.badge-live {
+  @apply text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700
+         animate-pulse;
+}

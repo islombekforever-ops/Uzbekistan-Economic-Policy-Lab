@@ -16,3 +16,12 @@ output/results.RData
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Node / Next.js
+platform/node_modules/
+platform/.next/
+platform/out/
+platform/.env*.local
+
+# Claude internal
+.claude/
