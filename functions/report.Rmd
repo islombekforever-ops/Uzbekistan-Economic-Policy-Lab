@@ -1,0 +1,55 @@
+---
+title: "GDP Nowcast Report"
+author: "-- Place authors here --"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    citation_package: natbib
+bibliography: references.bib
+header-includes:
+  - \usepackage{setspace}
+  - \AtBeginEnvironment{thebibliography}{\setstretch{0.8}}  # 0.8 = 80% line spacing
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(scales)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Description
+
+This report shows the **nowcast** and the **one-quarter-ahead forecast** for the **non-cumulative quarter-on-quarter growth rate** of real GDP resulting from a mixed-frequency dynamic factor model (DFM). In addition, the report shows the implied nowcast and one-quarter-ahead forecast for the **non-cumulative year-on-year growth rate** of real GDP.
+
+\vspace{0.25cm}
+
+
+
+## Predictions for year-on-year GDP growth
+
+`r paste0(year(tail(gdp$date, 1)), "Q", quarter(tail(gdp$date, 1)))`: `r round(tail(gdp$gdp_grw_qoq, 1), 2)`%
+
+\vspace{0.25cm}
+
+## GDP Growth History With Predictions
+
+
+```{r plot_yoy, echo=FALSE, fig.width=8, fig.height=4}
+gdp_plot <- gdp %>% tail(12) %>%
+  mutate(latest = ifelse(row_number() > n() - 1, TRUE, FALSE),
+         quarter_label = paste0(year(date), "Q", quarter(date)))
+
+ggplot(gdp_plot, aes(x = quarter_label, y = gdp_grw_yoy, fill = latest)) +
+  geom_col() +
+  geom_text(aes(label = round(gdp_grw_yoy, 2)), vjust = -0.5, color = "black", size = 3) +
+  scale_fill_manual(values = c("FALSE" = "blue", "TRUE" = "red"), guide = "none") +
+  labs(x = "Quarter", y = "Year-on-year growth rate (%)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Appendix: DFM Methodology
+
+The mixed-frequency DFM employed follows \cite{BanburaModugno2014}, which builds on \cite{doz2012quasi}. Other widely cited versions of the model are published in \cite{Banbura2011} and \cite{bok2018}. The latter model version underpinned the New York Fed Staff Nowcast (\citealp{NewYorkFed2025}) until September 2021. \cite{BokQian2019} implement the mixed-frequency DFM model presented in \cite{bok2018} in MATLAB. \cite{Hopp2023} translated this original MATLAB implementation into R. The mixed-frequency DFM code employed for this GDP nowcast report builds on the code template of \cite{Hopp2023}. \cite{Eckert2025} present an advanced Bayesian mixed-frequency DFM with stochastic volatility for measuring GDP growth at high-frequency intervals.
