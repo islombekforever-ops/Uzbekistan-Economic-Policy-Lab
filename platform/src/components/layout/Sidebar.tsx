@@ -34,8 +34,9 @@ const navigation: NavItem[] = [
       },
       {
         label: "Quarterly Projection (QPM)",
+        href: "/models/qpm",
         icon: <Activity size={16} />,
-        badge: "Soon",
+        badge: "Live",
       },
       {
         label: "Input-Output Analysis",

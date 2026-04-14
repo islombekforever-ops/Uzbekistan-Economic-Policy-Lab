@@ -18,14 +18,14 @@ const models = [
   {
     id: "qpm",
     title: "Quarterly Projection",
-    subtitle: "QPM — DSGE Model",
+    subtitle: "QPM — New Keynesian DSGE",
     description:
-      "Structural macroeconomic model for medium-term projections, monetary policy simulations, and impulse-response analysis.",
+      "Structural monetary policy model with IS curve, hybrid Phillips curve, forward-looking Taylor rule, and UIP. Calibrated for Uzbekistan by CEER.",
     icon: <Activity size={24} />,
-    badge: "Soon",
-    href: null,
+    badge: "Live",
+    href: "/models/qpm",
     color: "#3b82f6",
-    tags: ["DSGE", "IRF", "Monetary Policy"],
+    tags: ["DSGE", "IRF", "Taylor Rule", "UIP"],
   },
   {
     id: "io",
