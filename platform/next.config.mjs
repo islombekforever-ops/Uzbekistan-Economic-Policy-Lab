@@ -1,9 +1,8 @@
-import type { NextConfig } from "next";
-
 const isProd = process.env.NODE_ENV === "production";
 const repoName = "Uzbekistan-Economic-Policy-Lab";
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   output: "export",
   basePath: isProd ? `/${repoName}` : "",
   assetPrefix: isProd ? `/${repoName}/` : "",
