@@ -5,6 +5,7 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, Cell,
 } from "recharts";
 import { IOData, getQuadrant, QUADRANT_COLORS } from "@/lib/ioData";
+import { getSectorName } from "@/lib/i18n";
 
 interface Props { data: IOData; onSelectSector: (id: number) => void; selectedId: number | null; }
 
@@ -23,7 +24,7 @@ export function LinkagePanel({ data, onSelectSector, selectedId }: Props) {
       id:    s.id,
       x:     s.fl,
       y:     s.bl,
-      name:  s.name,
+      name:  getSectorName(s.id, "en", s.name),
       code:  s.code,
       group: s.group,
       color: s.color,
@@ -192,7 +193,7 @@ function KeySectorsTable({ data, onSelectSector, selectedId }: Props) {
             </tr>
           </thead>
           <tbody>
-            {keySectors.map((s, i) => (
+            {keySectors.map((s) => (
               <tr key={s.id}
                 className={`border-t border-slate-50 cursor-pointer transition-colors ${
                   s.id === selectedId ? "bg-teal-50" : "hover:bg-slate-50"
@@ -201,7 +202,7 @@ function KeySectorsTable({ data, onSelectSector, selectedId }: Props) {
               >
                 <td className="px-5 py-2.5 font-mono text-slate-500">{s.code}</td>
                 <td className="px-4 py-2.5 font-semibold text-slate-800 max-w-xs">
-                  <div className="truncate" title={s.name}>{s.name}</div>
+                  <div className="truncate" title={getSectorName(s.id, "en", s.name)}>{getSectorName(s.id, "en", s.name)}</div>
                 </td>
                 <td className="px-4 py-2.5">
                   <span className="px-2 py-0.5 rounded-full text-white text-xs font-bold"

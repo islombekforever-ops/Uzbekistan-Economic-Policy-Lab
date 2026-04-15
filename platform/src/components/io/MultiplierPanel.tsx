@@ -5,6 +5,7 @@ import {
   ResponsiveContainer, Cell, ReferenceLine,
 } from "recharts";
 import { IOData } from "@/lib/ioData";
+import { getSectorName } from "@/lib/i18n";
 
 const GROUP_ORDER = [
   "Agriculture","Mining","Manufacturing","Energy","Water/Waste",
@@ -60,19 +61,22 @@ export function MultiplierPanel({ data, onSelectSector, selectedId }: Props) {
     let sectors = [...data.sectors];
     if (groupFilter !== "All") sectors = sectors.filter(s => s.group === groupFilter);
     sectors.sort((a, b) => (b[sortKey] as number) - (a[sortKey] as number));
-    return sectors.slice(0, topN).map(s => ({
-      id:        s.id,
-      label:     encodeLabel(s.name, s.code),   // ← used by YAxis dataKey
-      code:      s.code,
-      name:      s.name,
-      value:     +(s[sortKey] as number).toFixed(4),
-      color:     s.color,
-      group:     s.group,
-      mult:      s.mult,
-      bl:        s.bl,
-      fl:        s.fl,
-      output_bn: s.output_bn,
-    }));
+    return sectors.slice(0, topN).map(s => {
+      const enName = getSectorName(s.id, "en", s.name);
+      return {
+        id:        s.id,
+        label:     encodeLabel(enName, s.code),
+        code:      s.code,
+        name:      enName,
+        value:     +(s[sortKey] as number).toFixed(4),
+        color:     s.color,
+        group:     s.group,
+        mult:      s.mult,
+        bl:        s.bl,
+        fl:        s.fl,
+        output_bn: s.output_bn,
+      };
+    });
   }, [data, sortKey, topN, groupFilter]);
 
   const groups = ["All", ...GROUP_ORDER.filter(g => data.sectors.some(s => s.group === g))];

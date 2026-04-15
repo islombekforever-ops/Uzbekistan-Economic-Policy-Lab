@@ -5,6 +5,7 @@ import {
   ResponsiveContainer, Cell, ReferenceLine,
 } from "recharts";
 import { IOData, simulateShock } from "@/lib/ioData";
+import { getSectorName } from "@/lib/i18n";
 import { Zap } from "lucide-react";
 
 interface Props { data: IOData; selectedId: number | null; onSelectSector: (id: number) => void; }
@@ -40,11 +41,17 @@ export function ShockPanel({ data, selectedId, onSelectSector }: Props) {
   const [topN, setTopN]               = useState(20);
 
   const sector = selectedId !== null ? data.sectors[selectedId] : null;
+  const sectorEnName = sector ? getSectorName(sector.id, "en", sector.name) : null;
 
   const filtered = useMemo(() => {
-    if (!searchTerm.trim()) return data.sectors.slice(0, 50);
+    const allWithEn = data.sectors.map(s => ({
+      ...s,
+      enName: getSectorName(s.id, "en", s.name),
+    }));
+    if (!searchTerm.trim()) return allWithEn.slice(0, 50);
     const t = searchTerm.toLowerCase();
-    return data.sectors.filter(s =>
+    return allWithEn.filter(s =>
+      s.enName.toLowerCase().includes(t) ||
       s.name.toLowerCase().includes(t) ||
       s.code.toLowerCase().includes(t) ||
       s.group.toLowerCase().includes(t)
@@ -55,15 +62,18 @@ export function ShockPanel({ data, selectedId, onSelectSector }: Props) {
     if (selectedId === null) return null;
     const deltaX = simulateShock(data.L_matrix, selectedId, shockAmount);
     return deltaX
-      .map((val, id) => ({
-        id,
-        val,
-        label: encodeLabel(data.sectors[id].name, data.sectors[id].code),
-        name:  data.sectors[id].name,
-        code:  data.sectors[id].code,
-        color: data.sectors[id].color,
-        group: data.sectors[id].group,
-      }))
+      .map((val, id) => {
+        const enName = getSectorName(data.sectors[id].id, "en", data.sectors[id].name);
+        return {
+          id,
+          val,
+          label: encodeLabel(enName, data.sectors[id].code),
+          name:  enName,
+          code:  data.sectors[id].code,
+          color: data.sectors[id].color,
+          group: data.sectors[id].group,
+        };
+      })
       .filter(d => Math.abs(d.val) > 0.01)
       .sort((a, b) => b.val - a.val)
       .slice(0, topN);
@@ -112,7 +122,7 @@ export function ShockPanel({ data, selectedId, onSelectSector }: Props) {
                       style={{ background: s.id === selectedId ? "#fff" : s.color }} />
                 <span className="min-w-0">
                   <span className={`text-xs leading-tight block truncate font-medium ${s.id === selectedId ? "text-white" : "text-slate-700"}`}>
-                    {s.name}
+                    {s.enName}
                   </span>
                   <span className={`font-mono text-xs mt-0.5 ${s.id === selectedId ? "text-purple-200" : "text-slate-400"}`}>
                     {s.code}
@@ -157,7 +167,7 @@ export function ShockPanel({ data, selectedId, onSelectSector }: Props) {
           {sector ? (
             <div className="surface p-5 border-l-4" style={{ borderLeftColor: sector.color }}>
               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Selected Sector</div>
-              <div className="font-bold text-slate-800 leading-tight mb-0.5">{sector.name}</div>
+              <div className="font-bold text-slate-800 leading-tight mb-0.5">{sectorEnName}</div>
               <div className="text-xs font-mono text-purple-500 mb-3">{sector.code}</div>
               <div className="grid grid-cols-3 gap-2">
                 {[
@@ -204,7 +214,7 @@ export function ShockPanel({ data, selectedId, onSelectSector }: Props) {
                 <div className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Shock Result</div>
                 <p className="leading-relaxed text-sm">
                   A <strong>+{shockAmount.toLocaleString()} bn UZS</strong> final-demand shock to{" "}
-                  <strong>{sector.name} ({sector.code})</strong> generates{" "}
+                  <strong>{sectorEnName} ({sector.code})</strong> generates{" "}
                   <strong>+{totalImpact.toFixed(0)} bn UZS</strong> of additional economy-wide output
                   (multiplier = {multiplierEst.toFixed(3)}). Top impacted sectors:{" "}
                   {shockResult.slice(0, 3).map(d => `${d.name.slice(0, 20)} (${d.code})`).join(", ")}.
