@@ -155,7 +155,8 @@ function LinkageTooltip({ active, payload }: { active?: boolean; payload?: { pay
   const d = payload[0].payload;
   return (
     <div className="bg-white/98 rounded-xl border border-slate-200 px-4 py-3 shadow-xl text-xs max-w-64">
-      <div className="font-bold text-slate-800 mb-1 leading-tight">{d.name}</div>
+      <div className="font-bold text-slate-800 leading-tight">{d.name}</div>
+      <div className="font-mono text-purple-500 text-xs mb-2">{d.code}</div>
       <div className="text-xs font-semibold mb-2 px-2 py-0.5 rounded-full inline-block text-white"
            style={{ background: QUADRANT_COLORS[d.quadrant] }}>{d.quadrant}</div>
       <div className="space-y-1 mt-2">

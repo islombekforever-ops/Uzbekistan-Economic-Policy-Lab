@@ -23,9 +23,35 @@ const SORT_OPTIONS: { key: SortKey; label: string; color: string }[] = [
   { key: "output_bn", label: "Gross Output",      color: "#3b82f6" },
 ];
 
+/** Encode name + code into a single string for Recharts dataKey, parsed by CustomYTick */
+const SEP = "\u0001";
+const encodeLabel = (name: string, code: string) => `${name}${SEP}${code}`;
+
+/** Custom two-line Y-axis tick: name on top, (code) below in accent colour */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function CustomYTick({ x, y, payload, accentColor }: any) {
+  const raw: string = payload?.value ?? "";
+  const sepIdx = raw.indexOf(SEP);
+  const rawName = sepIdx >= 0 ? raw.slice(0, sepIdx) : raw;
+  const code    = sepIdx >= 0 ? raw.slice(sepIdx + 1) : "";
+  const name    = rawName.length > 28 ? rawName.slice(0, 27).trimEnd() + "…" : rawName;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text x={-8} y={-3} textAnchor="end" fill="#374151"
+            fontSize={9} fontWeight={500} fontFamily="inherit">
+        {name}
+      </text>
+      <text x={-8} y={8} textAnchor="end" fill={accentColor ?? "#8b5cf6"}
+            fontSize={8} fontFamily="monospace" fontWeight={700}>
+        ({code})
+      </text>
+    </g>
+  );
+}
+
 export function MultiplierPanel({ data, onSelectSector, selectedId }: Props) {
-  const [sortKey, setSortKey]       = useState<SortKey>("mult");
-  const [topN, setTopN]             = useState(30);
+  const [sortKey, setSortKey]         = useState<SortKey>("mult");
+  const [topN, setTopN]               = useState(30);
   const [groupFilter, setGroupFilter] = useState<string>("All");
 
   const activeSort = SORT_OPTIONS.find(o => o.key === sortKey)!;
@@ -35,20 +61,25 @@ export function MultiplierPanel({ data, onSelectSector, selectedId }: Props) {
     if (groupFilter !== "All") sectors = sectors.filter(s => s.group === groupFilter);
     sectors.sort((a, b) => (b[sortKey] as number) - (a[sortKey] as number));
     return sectors.slice(0, topN).map(s => ({
-      id:    s.id,
-      code:  s.code.length > 10 ? s.code.slice(0, 10) : s.code,
-      name:  s.name,
-      value: +(s[sortKey] as number).toFixed(4),
-      color: s.color,
-      group: s.group,
-      mult:  s.mult,
-      bl:    s.bl,
-      fl:    s.fl,
+      id:        s.id,
+      label:     encodeLabel(s.name, s.code),   // ← used by YAxis dataKey
+      code:      s.code,
+      name:      s.name,
+      value:     +(s[sortKey] as number).toFixed(4),
+      color:     s.color,
+      group:     s.group,
+      mult:      s.mult,
+      bl:        s.bl,
+      fl:        s.fl,
       output_bn: s.output_bn,
     }));
   }, [data, sortKey, topN, groupFilter]);
 
   const groups = ["All", ...GROUP_ORDER.filter(g => data.sectors.some(s => s.group === g))];
+
+  // Row height: 28px per bar to give room for 2-line labels
+  const rowH   = 28;
+  const chartH = Math.max(320, chartData.length * rowH);
 
   return (
     <div className="space-y-4">
@@ -98,21 +129,27 @@ export function MultiplierPanel({ data, onSelectSector, selectedId }: Props) {
           {activeSort.label} — Top {Math.min(topN, chartData.length)} Sectors
         </h3>
         <p className="text-xs text-slate-400 mb-4">
-          {sortKey === "mult" && "Total output multiplier = sum of Leontief inverse column. Shows economy-wide production induced per unit of final demand."}
-          {sortKey === "bl"   && "Backward linkage (Rasmussen-Hirschman) > 1 = above-average demand for upstream inputs."}
-          {sortKey === "fl"   && "Forward linkage > 1 = above-average supply to downstream sectors."}
+          {sortKey === "mult"      && "Total output multiplier = column sum of Leontief inverse. Economy-wide production induced per 1 unit of final demand."}
+          {sortKey === "bl"        && "Backward linkage (Rasmussen-Hirschman) > 1 = above-average demand for upstream inputs."}
+          {sortKey === "fl"        && "Forward linkage > 1 = above-average supply to downstream sectors."}
           {sortKey === "output_bn" && "Gross output in billion UZS (2022). Measures sector size."}
         </p>
-        <ResponsiveContainer width="100%" height={Math.max(300, chartData.length * 22)}>
+        <ResponsiveContainer width="100%" height={chartH}>
           <BarChart data={chartData} layout="vertical"
-            margin={{ top: 0, right: 60, bottom: 0, left: 100 }}>
+            margin={{ top: 4, right: 64, bottom: 4, left: 220 }}>
             <CartesianGrid strokeDasharray="4 4" stroke="#f1f5f9" horizontal={false} />
             <XAxis type="number" tick={{ fontSize: 10, fill: "#94a3b8" }}
               tickLine={false} axisLine={false}
               tickFormatter={v => sortKey === "output_bn" ? `${v.toFixed(0)}bn` : v.toFixed(2)}
             />
-            <YAxis type="category" dataKey="code" width={95}
-              tick={{ fontSize: 9, fill: "#64748b" }} tickLine={false} axisLine={false} />
+            <YAxis
+              type="category"
+              dataKey="label"
+              width={216}
+              tickLine={false}
+              axisLine={false}
+              tick={<CustomYTick accentColor={activeSort.color} />}
+            />
             {(sortKey === "bl" || sortKey === "fl") && (
               <ReferenceLine x={1} stroke="#64748b" strokeDasharray="4 4" strokeWidth={1.5} />
             )}
@@ -126,7 +163,7 @@ export function MultiplierPanel({ data, onSelectSector, selectedId }: Props) {
               {chartData.map((entry) => (
                 <Cell key={entry.id}
                   fill={entry.id === selectedId ? "#0d1f3c" : entry.color}
-                  fillOpacity={entry.id === selectedId ? 1 : 0.8}
+                  fillOpacity={entry.id === selectedId ? 1 : 0.82}
                 />
               ))}
             </Bar>
@@ -140,14 +177,19 @@ export function MultiplierPanel({ data, onSelectSector, selectedId }: Props) {
   );
 }
 
-function MultTooltip({ active, payload, sortKey }: { active?: boolean; payload?: { payload: { name: string; mult: number; bl: number; fl: number; output_bn: number; group: string } }[]; sortKey: SortKey; label?: string }) {
+function MultTooltip({ active, payload, sortKey }: {
+  active?: boolean;
+  payload?: { payload: { name: string; code: string; mult: number; bl: number; fl: number; output_bn: number; group: string } }[];
+  sortKey: SortKey;
+  label?: string;
+}) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white/98 rounded-xl border border-slate-200 px-4 py-3 shadow-xl text-xs max-w-xs">
-      <div className="font-bold text-slate-800 mb-2 leading-tight">{d.name}</div>
-      <div className="text-slate-500 mb-2">{d.group}</div>
-      <div className="space-y-1">
+    <div className="bg-white/98 rounded-xl border border-slate-200 px-4 py-3 shadow-xl text-xs max-w-72">
+      <div className="font-bold text-slate-800 mb-0.5 leading-tight">{d.name}</div>
+      <div className="font-mono text-slate-400 text-xs mb-2">{d.code} · {d.group}</div>
+      <div className="space-y-1 border-t border-slate-100 pt-2">
         <div className="flex justify-between gap-4"><span className="text-slate-400">Output Multiplier</span><span className="font-black text-purple-600">{d.mult.toFixed(3)}</span></div>
         <div className="flex justify-between gap-4"><span className="text-slate-400">Backward Linkage</span><span className={`font-black ${d.bl >= 1 ? "text-teal-600" : "text-slate-500"}`}>{d.bl.toFixed(3)}</span></div>
         <div className="flex justify-between gap-4"><span className="text-slate-400">Forward Linkage</span><span className={`font-black ${d.fl >= 1 ? "text-amber-600" : "text-slate-500"}`}>{d.fl.toFixed(3)}</span></div>
@@ -158,15 +200,15 @@ function MultTooltip({ active, payload, sortKey }: { active?: boolean; payload?:
 }
 
 function SummaryStats({ data, sortKey, color }: { data: IOData; sortKey: SortKey; color: string }) {
-  const vals = data.sectors.map(s => s[sortKey] as number);
-  const avg  = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const vals  = data.sectors.map(s => s[sortKey] as number);
+  const avg   = vals.reduce((a, b) => a + b, 0) / vals.length;
   const above = vals.filter(v => v > avg).length;
   return (
     <div className="grid grid-cols-3 gap-3">
       {[
-        { label: "Average", val: avg.toFixed(3) },
+        { label: "Average",       val: avg.toFixed(3) },
         { label: "Above average", val: `${above} / ${vals.length}` },
-        { label: "Max", val: Math.max(...vals).toFixed(3) },
+        { label: "Maximum",       val: Math.max(...vals).toFixed(3) },
       ].map(s => (
         <div key={s.label} className="surface p-4 text-center">
           <div className="text-lg font-black tabular-nums" style={{ color }}>{s.val}</div>
