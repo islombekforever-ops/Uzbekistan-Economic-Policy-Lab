@@ -32,12 +32,12 @@ const models = [
     title: "Input-Output Model",
     subtitle: "136-Sector Leontief",
     description:
-      "Sector-level impact analysis using the national Input-Output table. Measures backward and forward linkages across 136 industries.",
+      "Full Leontief I-O model from Uzbekistan StatCom 2022 TZV table. Backward/forward linkage maps, output multipliers, and demand shock simulator across all 136 NACE sectors.",
     icon: <BarChart3 size={24} />,
-    badge: "Soon",
-    href: null,
+    badge: "Live",
+    href: "/models/io",
     color: "#8b5cf6",
-    tags: ["Leontief", "Multipliers", "Sector Analysis"],
+    tags: ["Leontief", "Multipliers", "Sector Analysis", "136 Sectors"],
   },
   {
     id: "cge",

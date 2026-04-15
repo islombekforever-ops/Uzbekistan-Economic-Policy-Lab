@@ -40,8 +40,9 @@ const navigation: NavItem[] = [
       },
       {
         label: "Input-Output Analysis",
+        href: "/models/io",
         icon: <BarChart3 size={16} />,
-        badge: "Soon",
+        badge: "Live",
       },
       {
         label: "CGE Model (1-2-3)",
