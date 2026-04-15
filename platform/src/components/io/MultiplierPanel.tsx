@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell, ReferenceLine,
 } from "recharts";
-import { IOData, IOSector } from "@/lib/ioData";
+import { IOData } from "@/lib/ioData";
 
 const GROUP_ORDER = [
   "Agriculture","Mining","Manufacturing","Energy","Water/Waste",
@@ -119,7 +119,8 @@ export function MultiplierPanel({ data, onSelectSector, selectedId }: Props) {
             <Tooltip content={<MultTooltip sortKey={sortKey} />} />
             <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={14}
               isAnimationActive animationDuration={500}
-              onClick={(d: { id: number }) => onSelectSector(d.id)}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onClick={(d: any) => onSelectSector(d.id)}
               style={{ cursor: "pointer" }}
             >
               {chartData.map((entry) => (

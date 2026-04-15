@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell, ReferenceLine,
 } from "recharts";
-import { IOData, IOSector, simulateShock } from "@/lib/ioData";
+import { IOData, simulateShock } from "@/lib/ioData";
 import { Zap } from "lucide-react";
 
 interface Props { data: IOData; selectedId: number | null; onSelectSector: (id: number) => void; }
@@ -211,7 +211,7 @@ export function ShockPanel({ data, selectedId, onSelectSector }: Props) {
                 <ReferenceLine x={0} stroke="#94a3b8" strokeWidth={1} />
                 <Tooltip content={<ShockTooltip shockAmount={shockAmount} />} />
                 <Bar dataKey="val" radius={[0, 4, 4, 0]} barSize={14}
-                  isAnimationActive animationDuration={500}>
+                  isAnimationActive animationDuration={500} cursor="default">
                   {shockResult.map(entry => (
                     <Cell key={entry.id}
                       fill={entry.id === selectedId ? "#8b5cf6" : entry.color}

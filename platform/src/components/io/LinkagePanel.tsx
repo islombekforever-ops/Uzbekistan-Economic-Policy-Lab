@@ -113,7 +113,8 @@ export function LinkagePanel({ data, onSelectSector, selectedId }: Props) {
             <ReferenceLine y={1} stroke="#64748b" strokeDasharray="4 4" strokeWidth={1.5}
               label={{ value: "BL=1", position: "right", fontSize: 10, fill: "#94a3b8" }} />
             <Tooltip content={<LinkageTooltip />} />
-            <Scatter data={scatterData} onClick={(d: { id: number }) => onSelectSector(d.id)}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <Scatter data={scatterData} onClick={(d: any) => onSelectSector(d.id)}
               style={{ cursor: "pointer" }}>
               {scatterData.map((entry) => {
                 const isSelected  = entry.id === selectedId;

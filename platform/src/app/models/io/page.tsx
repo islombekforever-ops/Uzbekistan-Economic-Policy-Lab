@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { IOHeader } from "@/components/io/IOHeader";
 import { MultiplierPanel } from "@/components/io/MultiplierPanel";
@@ -7,6 +7,9 @@ import { LinkagePanel } from "@/components/io/LinkagePanel";
 import { ShockPanel } from "@/components/io/ShockPanel";
 import { MethodologyIO } from "@/components/io/MethodologyIO";
 import { IOData } from "@/lib/ioData";
+import rawData from "../../../../public/data/io_data.json";
+
+const data = rawData as unknown as IOData;
 
 const TABS = [
   { id: "multipliers", label: "Multipliers & Rankings" },
@@ -16,53 +19,8 @@ const TABS = [
 ];
 
 export default function IOPage() {
-  const [data, setData]           = useState<IOData | null>(null);
-  const [error, setError]         = useState<string | null>(null);
-  const [tab, setTab]             = useState("multipliers");
+  const [tab, setTab]               = useState("multipliers");
   const [selectedId, setSelectedId] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetch("/data/io_data.json")
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json() as Promise<IOData>;
-      })
-      .then(setData)
-      .catch(e => setError(String(e)));
-  }, []);
-
-  if (error) {
-    return (
-      <PageShell>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center text-red-500">
-            <p className="font-bold">Failed to load I-O data</p>
-            <p className="text-sm mt-1">{error}</p>
-            <p className="text-xs text-slate-400 mt-2">Run extract_io.py to generate io_data.json</p>
-          </div>
-        </div>
-      </PageShell>
-    );
-  }
-
-  if (!data) {
-    return (
-      <PageShell>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center text-slate-400">
-            <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm">Loading 136-sector I-O data…</p>
-          </div>
-        </div>
-      </PageShell>
-    );
-  }
-
-  const handleSelectSector = (id: number) => {
-    setSelectedId(prev => prev === id ? null : id);
-    // Auto-switch to shock tab if user clicks sector
-    if (tab === "multipliers" || tab === "linkages") setTab("shock");
-  };
 
   const handleSelectAndStay = (id: number) => {
     setSelectedId(prev => prev === id ? null : id);
